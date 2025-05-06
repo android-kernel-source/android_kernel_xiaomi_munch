@@ -13,6 +13,10 @@
 #include <linux/spi/spi.h>
 #include <media/rc-core.h>
 
+#ifdef CONFIG_E404_SIGNATURE
+#include <linux/e404_attributes.h>
+#endif
+
 #define IR_SPI_DRIVER_NAME		"ir-spi-led"
 
 #define IR_SPI_DEFAULT_FREQUENCY	38000
@@ -114,6 +118,15 @@ static int ir_spi_probe(struct spi_device *spi)
 	int ret;
 	u8 dc;
 	struct ir_spi_data *idata;
+
+	#ifdef CONFIG_E404_SIGNATURE
+	if (e404_data.e404_ir_type != 1) {
+		dev_err(&spi->dev, "E404: Cancelled probe of IR SPI-LED\n");
+		return -ENODEV;
+	} else {
+		dev_info(&spi->dev, "E404: Using IR SPI-LED\n");
+	}
+	#endif
 
 	idata = devm_kzalloc(&spi->dev, sizeof(*idata), GFP_KERNEL);
 	if (!idata)
